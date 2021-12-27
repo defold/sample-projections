@@ -1,6 +1,6 @@
 [bootstrap]
 main_collection = /main/main.collectionc
-render = /builtins/render/default.renderc
+render = /default.renderc
 
 [script]
 shared_state = 1

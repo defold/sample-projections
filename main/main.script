@@ -18,6 +18,11 @@ end
 
 local PROJECTIONS = {
 	{
+		id = "use_improved_fixed_fit_projection",
+		params = { near = -1, far = 1, zoom = false },
+		setup = deactivate_camera,
+	},
+	{
 		id = "use_stretch_projection",
 		params = { near = -1, far = 1 },
 		setup = deactivate_camera,
