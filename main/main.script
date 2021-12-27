@@ -1,0 +1,68 @@
+local CAMERA_URL = "camera#camera"
+
+local function deactivate_camera(id, params)
+	msg.post(CAMERA_URL, "release_camera_focus")
+	-- reset camera view projection when camera is disabled
+	msg.post("@render:", "set_view_projection", { id = hash(""), view = vmath.matrix4(), projection = vmath.matrix4() })
+
+	local text = ("%s\nnear: %d far: %d zoom: %.2f"):format(id, params.near or -1, params.far or 1, params.zoom or 1)
+	label.set_text("#settings", text)
+	msg.post("@render:", id, params)
+end
+
+local function activate_camera(id, params)
+	msg.post(CAMERA_URL, "acquire_camera_focus")
+	label.set_text("#settings", id)
+	msg.post("@render:", id, params)
+end
+
+local PROJECTIONS = {
+	{
+		id = "use_stretch_projection",
+		params = { near = -1, far = 1 },
+		setup = deactivate_camera,
+	},
+	{
+		id = "use_fixed_fit_projection",
+		params = { near = -1, far = 1 },
+		setup = deactivate_camera,
+	},
+	{
+		id = "use_fixed_projection",
+		params = { near = -1, far = 1, zoom = 0.5 },
+		setup = deactivate_camera,
+	},
+	{
+		id = "use_fixed_projection",
+		params = { near = -1, far = 1, zoom = 2 },
+		setup = deactivate_camera,
+	},
+	{
+		id = "use_camera_projection",
+		params = {},
+		setup = activate_camera,
+	},
+}
+
+
+local function update_projection(self)
+	local p = PROJECTIONS[self.projection]
+	p.setup(p.id, p.params)
+end
+
+function init(self)
+	go.animate("camera", "position.z", go.PLAYBACK_LOOP_PINGPONG, 150, go.EASING_INOUTQUAD, 4)
+	msg.post(".", "acquire_input_focus")
+	self.projection = 1
+	update_projection(self)
+end
+
+function on_input(self, action_id, action)
+	if action.released then
+		self.projection = self.projection + 1
+		if self.projection > #PROJECTIONS then
+			self.projection = 1
+		end
+		update_projection(self)
+	end
+end
