@@ -27,13 +27,12 @@ local function stretch_projection(near, far)
     return vmath.matrix4_orthographic(0, render.get_width(), 0, render.get_height(), near, far)
 end
 
-local function improved_fixed_fit_projection(near, far, zoom_in)
+local function improved_fixed_fit_projection(near, far)
     local width = render.get_width()
     local height = render.get_height()
     local window_width = render.get_window_width()
     local window_height = render.get_window_height()
-    -- Changing "local zoom = math.min" to "local zoom = math.max"
-    local zoom = (zoom_in and math.max(window_width / width, window_height / height) or math.min(window_width / width, window_height / height))
+    local zoom = math.max(window_width / width, window_height / height)
     return fixed_projection(near, far, zoom)
 end
 
@@ -121,7 +120,6 @@ function on_message(self, message_id, message)
     elseif message_id == hash("use_improved_fixed_fit_projection") then
         self.near = message.near or -1
         self.far = message.far or 1
-        self.zoom = message.zoom or false
         self.projection_fn = improved_fixed_fit_projection
     end
 end
